@@ -65,6 +65,7 @@ posX = 0.0
 posY = 0.0
 posZ = 0.0
 objects = []
+lightModel = GL_SMOOTH
 
 # Callback de desenho
 def draw():
@@ -139,7 +140,7 @@ def setViewParams():
     glLoadIdentity()
 
     # Especifica a projeção perspectiva
-    gluPerspective(angle, fAspect, 0.1, 500)
+    gluPerspective(angle, fAspect, 0.4, 500)
 
     # Especifica sistema de coordenadas do modelo
     glMatrixMode(GL_MODELVIEW)
@@ -278,6 +279,25 @@ def drawTorus():
     torus = Torus([r, g, b], isSolid, posX, posY, posZ, 50.0, 20.0, 10, 10)
     objects.append(torus)
 
+# Menu de modelo de iluminação
+def menuLight(choice):
+    
+    global lightModel
+
+    # luzes
+    if(choice == 0):
+        
+        lightModel = GL_SMOOTH
+
+    # flat
+    elif (choice == 1):
+        
+        lightModel = GL_FLAT
+    
+    glShadeModel(lightModel)
+    glutPostRedisplay()
+
+    return 0
 # Menu principal
 def menuMain():
     pass
@@ -301,7 +321,12 @@ def menu():
     glutAddMenuEntry("Cone", 3)
     glutAddMenuEntry("Torus", 4)
 
-    menu = glutCreateMenu(menuMain)
+    subMenuLight = glutCreateMenu(menuLight)
+    glutAddMenuEntry("Luzes", 0)
+    glutAddMenuEntry("Flat", 1)
+
+    glutCreateMenu(menuMain)
+    glutAddSubMenu("Luzes", subMenuLight)
     glutAddSubMenu("Tipos", subMenuType)
     glutAddSubMenu("Cores", subMenuColor)
     glutAddSubMenu("Formas", subMenuShape)
@@ -319,7 +344,7 @@ def mouseHandler(button, state, x, y):
     
     glutPostRedisplay()
 
-# callback chamada sempre que o mouse é movimentado sobre a janela GLUT
+# Callback chamada sempre que o mouse é movimentado sobre a janela GLUT
 def getMousePosition(x, y):
 
     global posX, posY, posZ
@@ -333,9 +358,52 @@ def getMousePosition(x, y):
     winZ = glReadPixels(x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, None)
     posX, posY, posZ = gluUnProject(winX, winY, winZ, modelView, projection, viewPort)
 
+# Inicializa parâmetros de rendering
 def init():
+    
+    global lightModel
 
+    ambientLight = [0.2, 0.2, 0.2, 1.0]
+    diffusedLight = [0.7, 0.7, 0.7, 1.0] # cor
+    specularLight = [1.0, 1.0, 1.0, 1.0] # brilho
+    lightPosition = [0.0, 50.0, 50.0, 1.0]
+
+    # capacidade de brilho do material
+    specularity = [1.0, 1.0, 1.0, 1.0]
+    specMaterial = 60
+
+    # cor do fundo da janela
     glClearColor(0.0, 0.0, 0.0, 1.0)
+
+    # habilita o modelo de iluminação
+    glShadeModel(lightModel)
+
+    # define a refletância do material
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specularity)
+
+    # define a concentração do brilho
+    glMateriali(GL_FRONT, GL_SHININESS, specMaterial)
+
+    # ativa o uso da luz ambiente
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight)
+
+    # define os parâmetros da luz de número 0
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight)
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffusedLight)
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight)
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition)
+
+    # habilita a definição da cor do material a partir da cor corrente
+    glEnable(GL_COLOR_MATERIAL)
+
+    # habilita o uso de iluminação
+    glEnable(GL_LIGHTING)
+
+    # habilita a luz de número 0
+    glEnable(GL_LIGHT0)
+
+    # habilita o dedpth-buffering
+    glEnable(GL_DEPTH_TEST)
 
 def main():
 
