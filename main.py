@@ -66,11 +66,14 @@ posY = 0.0
 posZ = 0.0
 objects = []
 lightModel = GL_SMOOTH
+isRotated = 0.0
+isTranslated = 0.0
+isScaled = 0.0
 
 # Callback de desenho
 def draw():
     
-    global objects
+    global objects, isRotated, isTranslated, isScaled
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -78,7 +81,21 @@ def draw():
         
         glColor3f(obj.color[0], obj.color[1], obj.color[2])
         glPushMatrix()
-        glTranslatef(obj.translateX, obj.translateY, obj.translateZ)
+
+        if (isTranslated > 0):
+            
+            glTranslatef(obj.translateX + isTranslated, obj.translateY + isTranslated, obj.translateZ)
+        else:
+
+            glTranslatef(obj.translateX, obj.translateY, obj.translateZ)
+
+        if (isRotated > 0):
+
+            glRotatef(isRotated, 1.0, 0.0, 0.0)
+        
+        if (isScaled > 0):
+            
+            glScalef(isScaled, isScaled, isScaled)
         
         if (isinstance(obj, Teapot)):
             
@@ -298,6 +315,31 @@ def menuLight(choice):
     glutPostRedisplay()
 
     return 0
+
+# Menu de transformações geometricas
+def menuTransformations(choice):
+    
+    global isRotated, isTranslated, isScaled
+
+    # escala
+    if(choice == 0):
+        
+        isScaled = isScaled + 1.2
+
+    # rotação
+    elif (choice == 1):
+        
+        isRotated = isRotated + 45
+    
+    # translação
+    elif (choice == 2):
+        
+        isTranslated = isTranslated + 5.0
+    
+    glutPostRedisplay()
+
+    return 0
+
 # Menu principal
 def menuMain():
     pass
@@ -325,11 +367,17 @@ def menu():
     glutAddMenuEntry("Luzes", 0)
     glutAddMenuEntry("Flat", 1)
 
+    subMenuTransformations = glutCreateMenu(menuTransformations)
+    glutAddMenuEntry("Escala", 0)
+    glutAddMenuEntry("Rotacao", 1)
+    glutAddMenuEntry("Translacao", 2)
+
     glutCreateMenu(menuMain)
     glutAddSubMenu("Luzes", subMenuLight)
     glutAddSubMenu("Tipos", subMenuType)
     glutAddSubMenu("Cores", subMenuColor)
     glutAddSubMenu("Formas", subMenuShape)
+    glutAddSubMenu("Transformacoes", subMenuTransformations)
 
     glutAttachMenu(GLUT_RIGHT_BUTTON)
 
