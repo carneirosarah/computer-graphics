@@ -340,6 +340,26 @@ def menuTransformations(choice):
 
     return 0
 
+# Menu de zoom
+def menuZoom (choice):
+
+    global angle
+
+    # Zoom-in
+    if(choice == 0):
+        
+        angle = angle - 5 if angle >= 10 else angle
+
+    # Zoom-out
+    elif (choice == 1):
+        
+        angle = angle + 5 if angle <= 130 else angle
+    
+    setViewParams()
+    glutPostRedisplay()
+
+    return 0
+
 # Menu principal
 def menuMain():
     pass
@@ -372,12 +392,17 @@ def menu():
     glutAddMenuEntry("Rotacao", 1)
     glutAddMenuEntry("Translacao", 2)
 
+    subMenuZoom = glutCreateMenu(menuZoom)
+    glutAddMenuEntry("Zoom-in", 0)
+    glutAddMenuEntry("Zoom-out", 1)
+    
     glutCreateMenu(menuMain)
     glutAddSubMenu("Luzes", subMenuLight)
     glutAddSubMenu("Tipos", subMenuType)
     glutAddSubMenu("Cores", subMenuColor)
     glutAddSubMenu("Formas", subMenuShape)
     glutAddSubMenu("Transformacoes", subMenuTransformations)
+    glutAddSubMenu("Zoom", subMenuZoom)
 
     glutAttachMenu(GLUT_RIGHT_BUTTON)
 
